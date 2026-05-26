@@ -1,61 +1,61 @@
-# Routing Strategy
+# 模型路由策略
 
-Model routing 指的是根据任务选择合适的模型、工具或 workflow，而不是把所有请求都发给同一个 endpoint。
+模型路由（routing）指的是根据任务选择合适的模型、工具或工作流程，而不是把所有请求都发给同一个 endpoint。
 
-在这个项目中，routing 被当作一个系统工程问题：capability、cost、latency、safety 和 reliability 都需要考虑。
+在这个项目中，路由被当作一个系统工程问题：能力、成本、延迟、安全性和可靠性都需要考虑。
 
-## Routing Goals
+## 路由目标
 
-- 用 lightweight models 处理简单分类、总结、抽取和格式化任务。
-- 对模糊、多步骤或高影响任务使用更强的 reasoning models。
-- 当 privacy、latency 或 inspectability 更重要时，优先考虑 local execution。
-- 只有在任务确实需要 hosted models 且上下文适合分享时，才升级到外部模型。
-- 对有实际影响的动作保留 human approval。
+- 用轻量模型处理简单分类、总结、抽取和格式化任务。
+- 对模糊、多步骤或高影响任务使用更强的推理模型。
+- 当隐私、延迟或可检查性更重要时，优先考虑本地执行。
+- 只有在任务确实需要 hosted model 且上下文适合分享时，才升级到外部模型。
+- 对有实际影响的动作保留人工确认。
 
-## Routing Inputs
+## 路由决策依据
 
-Routing decision 可以考虑：
+路由决策可以考虑：
 
-- **Task type:** drafting、planning、retrieval、tool use、code review、extraction、synthesis。
-- **Risk level:** 输出是否会修改文件、花钱、披露数据或影响他人。
-- **Context sensitivity:** prompt 是否包含 private、confidential 或 account-specific 信息。
-- **Latency tolerance:** 用户是否需要即时回答，还是可以等待更强模型。
-- **Cost sensitivity:** 预期 token volume、retry likelihood 和 model pricing。
-- **Reliability needs:** 是否需要 verification、deterministic formatting 或 auditability。
+- **任务类型：** 起草、规划、检索、工具调用、代码审查、信息抽取、汇总。
+- **风险等级：** 输出是否会修改文件、花钱、披露数据或影响他人。
+- **上下文敏感度：** 提示词（prompt）是否包含私人、机密或账号相关信息。
+- **延迟容忍度：** 用户是否需要即时回答，还是可以等待更强模型。
+- **成本敏感度：** 预期 token 数量、重试可能性和模型价格。
+- **可靠性需求：** 是否需要验证、确定性格式化或可审计记录。
 
-## Example Routing Tiers
+## 示例路由层级
 
-这些 tier 是概念性的，不表示本仓库包含对应的完整部署实现。
+这些层级是概念性的，不表示本仓库包含对应的完整部署实现。
 
-| Tier | 适用场景 | 常见控制 |
+| 层级 | 适用场景 | 常见控制 |
 | --- | --- | --- |
-| Local or small model | 低风险分类、总结、清理、初稿 | Short context、不外传敏感内容、简单验证 |
-| General hosted model | 中等复杂度写作、规划、结构化推理 | Cost checks、prompt constraints、行动前 review |
-| Strong reasoning model | 复杂决策、不确定任务、安全敏感分析 | Human confirmation、narrower scope、explicit verification |
-| Tool-assisted workflow | 文件编辑、搜索、命令执行、外部动作 | Permission checks、dry runs、logs、rollback plan |
+| 本地模型或小模型 | 低风险分类、总结、清理、初稿 | 短上下文、不外传敏感内容、简单验证 |
+| 通用 hosted model | 中等复杂度写作、规划、结构化推理 | 成本检查、提示词约束、行动前复核 |
+| 强推理模型 | 复杂决策、不确定任务、安全敏感分析 | 人工确认、缩小范围、明确验证 |
+| 工具辅助流程 | 文件编辑、搜索、命令执行、外部动作 | 权限检查、dry run、日志、回滚计划 |
 
-## Cost-Aware Orchestration
+## 面向成本的编排设计
 
 成本意识不只是选择更便宜的模型，也包括：
 
-- 减少不必要的 context。
-- 避免在策略不变时反复 retry。
+- 减少不必要的上下文。
+- 避免在策略不变时反复重试。
 - 升级到更强模型前先总结中间状态。
-- 把 expensive models 留给真正需要它们的任务。
-- 对不需要 language generation 的工作使用 deterministic tools。
+- 把高成本模型留给真正需要它们的任务。
+- 对不需要语言生成的工作使用确定性工具。
 
-## Escalation and Fallback
+## 升级与备用方案
 
-Routing strategy 需要定义第一选择不够用时怎么办：
+路由策略需要定义第一选择不够用时怎么办：
 
 - 当任务仍然模糊时，从小模型升级到更强模型。
-- 当外部调用不可用或不合适时，fallback 到 local 或 manual workflow。
-- 对不可逆动作先请求 human confirmation。
-- 当 confidence 低时停止，不制造确定性。
+- 当外部调用不可用或不合适时，切换到本地或手动工作流程。
+- 对不可逆动作先请求人工确认。
+- 当信心不足时停止，不制造确定性。
 
-## Evaluation Questions
+## 评估问题
 
-Routing strategy 应该用实际行为来评估：
+路由策略应该用实际行为来评估：
 
 - 系统是否为任务选择了合适模型？
 - 是否避免了不必要的成本？

@@ -1,31 +1,31 @@
-# Lessons Learned
+# 经验总结
 
-这个项目是 documentation-focused portfolio，所以经验主要来自如何负责任地设计和解释个人 LLM Agent stack。
+这个项目是以文档为主的作品集，所以经验主要来自如何负责任地设计和解释个人 LLM Agent 系统。
 
-## 1. Documentation Is Part of the System
+## 1. 文档也是系统的一部分
 
-Agent behavior 取决于 configuration、model choice、tool permissions 和 user expectations。如果这些决策没有文档化，即使工具能运行，系统也会更难评估。
+Agent 行为取决于配置、模型选择、工具权限和用户预期。如果这些决策没有文档化，即使工具能运行，系统也会更难评估。
 
-## 2. Local Deployment Is a Tradeoff, Not a Slogan
+## 2. 本地部署是一种权衡，而不是口号
 
-Local-first design 可以改善 privacy、latency 和 inspectability，但也带来 hardware limits、model quality、dependency management 和 fallback behavior 等问题。好的文档应该同时说清楚两面。
+本地优先设计可以改善隐私、延迟和可检查性，但也带来硬件限制、模型质量、依赖管理和备用方案等问题。好的文档应该同时说清楚两面。
 
-## 3. Routing Is an Engineering Decision
+## 3. 模型路由是工程决策
 
-Model routing 连接技术与实际约束。Routing strategy 应考虑 task type、cost、latency、privacy 和 risk，而不是固定偏好某一个模型。
+模型路由连接技术与实际约束。路由策略应考虑任务类型、成本、延迟、隐私和风险，而不是固定偏好某一个模型。
 
-## 4. Cost Controls Shape Product Behavior
+## 4. 成本控制会影响产品行为
 
-Cost-aware orchestration 会影响 agent 如何收集 context、retry failed steps、升级到更强模型，以及何时使用 deterministic tool 代替另一轮 model call。
+面向成本的多模型编排会影响 Agent 如何收集上下文、重试失败步骤、升级到更强模型，以及何时使用确定性工具代替另一轮模型调用。
 
-## 5. Human Review Is a Feature
+## 5. 人工复核本身就是能力
 
-Human-in-the-loop safety 不只是限制。它能让个人 Agent 更可信，因为有影响的决策保持可见，也更容易回滚。
+人工参与的安全机制不只是限制。它能让个人 Agent 更可信，因为有影响的决策保持可见，也更容易回滚。
 
-## 6. Reliability Starts With Boundaries
+## 6. 可靠性从边界开始
 
-围绕 file access、network calls、credentials、logs 和 tool permissions 建立清晰边界，能让系统更容易推理，也能减少夸大项目能力的诱惑。
+围绕文件访问、网络调用、credentials、日志和工具权限建立清晰边界，能让系统更容易推理，也能减少夸大项目能力的诱惑。
 
-## 7. Honest Positioning Builds Trust
+## 7. 诚实定位才能建立信任
 
-最重要的作品集经验是精准定位项目。本仓库记录 personal deployment、configuration、routing 和 safety thinking。它不需要假装成 production platform 才有价值。
+最重要的作品集经验是精准定位项目。本仓库记录个人部署、配置、路由和安全思考。它不需要假装成生产环境平台才有价值。

@@ -1,68 +1,75 @@
-# Pantheon — Telegram-native Multi-LLM Roundtable
+# Pantheon —— 基于 Telegram 的多大语言模型圆桌讨论系统
 
 Pantheon 的完整源码维护在独立公开仓库：
 
 https://github.com/yusongcao2004/pantheon-llm-roundtable
 
-这个目录只包含中文 Portfolio case study，不复制 Pantheon 源码。
+这个目录只包含中文作品集展示页，不复制 Pantheon 源码。
 
 ## 项目目标
 
-Pantheon 探索如何让多个 LLM provider 在 Telegram 群中进行短轮次讨论，同时保持清晰的发言顺序、可控成本、简洁输出和中立汇总。
+Pantheon 探索如何让多个大语言模型服务商在 Telegram 群中进行短轮次讨论，同时保持清晰的发言顺序、可控成本、简洁输出和中立汇总。
 
-实际交互方式是：用户在 Telegram 群里 @ 某个 bot，被 @ 的 bot 先发言，其他模型参与 cyclic full-round discussion，最后由内部 synthesis 步骤输出简短中立总结。
+实际交互方式是：用户在 Telegram 群里 @ 某个机器人（bot），被 @ 的机器人先发言，其他模型按固定顺序参与完整轮次讨论，最后由内部汇总步骤输出简短的中立总结。
 
 ## 为什么做它
 
-我做 Pantheon，是为了把 multi-LLM coordination 当成一个真实工程系统来验证，而不是静态 demo。真正有意思的问题包括 provider compatibility、role control、cost control、synthesis constraints、Telegram interaction design，以及 secret-safe public release。
+我做 Pantheon，是为了把多模型协作当成一个真实工程系统来验证，而不是静态演示。真正有意思的问题包括不同服务商的接口兼容、角色控制、成本控制、汇总约束、Telegram 交互设计，以及安全公开发布。
 
-这个项目也展示了 cost-aware orchestration：不是每个参与者都需要旗舰模型，讨论轮次和输出长度也需要有边界。
+这个项目也展示了面向成本的多模型编排：不是每个参与者都需要旗舰模型，讨论轮次和输出长度也需要有边界。
 
-## 当前四模型结构
+## 当前模型结构
 
 | 角色 | 模型 |
 | --- | --- |
-| GPT participant | `gpt-4o-mini` |
-| DeepSeek participant | `deepseek-chat` |
-| Doubao participant | `doubao-seed-2-0-mini-260428` |
-| Gemini participant | `gemini-3.5-flash` |
-| Internal synthesis | `gemini-3.1-flash-lite` |
+| GPT 参与者 | `gpt-4o-mini` |
+| DeepSeek 参与者 | `deepseek-chat` |
+| Doubao 参与者 | `doubao-seed-2-0-mini-260428` |
+| Gemini 参与者 | `gemini-3.5-flash` |
+| 内部汇总 | `gemini-3.1-flash-lite` |
 
 ## 已实现功能
 
-- Telegram-native interaction。
-- 任意被 @ 的 bot 都可以先发言。
-- 多模型 cyclic full-round discussion。
-- 使用 concise prompting 控制输出长度和成本。
-- 讨论结束后生成 prompt-constrained neutral synthesis。
-- 记录每次讨论的 token/cache statistics。
+- 在 Telegram 群中原生交互。
+- 任意被 @ 的机器人（bot）都可以先发言。
+- 多模型按轮次循环参与完整讨论。
+- 使用简洁提示词控制输出长度和成本。
+- 讨论结束后生成提示词（prompt）约束下的中立汇总。
+- 记录每次讨论的 token 和 cache 统计。
 - 使用环境变量隔离 secrets。
 
 ## 工程问题与解决
 
-### Provider-specific API compatibility
+### 不同服务商的接口兼容
 
-不同 provider 接受的 request fields 和 runtime options 并不完全一致。Pantheon 不假设所有模型都能使用同一套 OpenAI-style request shape，而是处理 provider-specific compatibility。
+不同模型服务商接受的请求字段和运行选项并不完全一致。Pantheon 不假设所有模型都能使用同一套 OpenAI-style request shape，而是按服务商处理接口兼容问题。
 
-### Cost-driven model downgrade
+### 基于成本的模型降级
 
-项目有意在适合的位置使用更小或更便宜的模型。这样能让 roundtable 保持可用，而不是每条消息都变成旗舰模型调用。
+项目有意在适合的位置使用更小或更便宜的模型。这样能让圆桌讨论保持可用，而不是每条消息都变成旗舰模型调用。
 
-### Concise output control
+### 简洁输出控制
 
-每个 participant 都被要求输出简短内容。讨论轮数也有边界，因此系统在进入 synthesis 前有可预测的成本上限。
+每个参与模型都被要求输出简短内容。讨论轮数也有边界，因此系统在进入汇总前有可预测的成本上限。
 
-### Neutral synthesis limitation
+### 中立汇总的边界
 
-Synthesis 通过 prompt 约束为中立表达，但这不是形式化的无偏保证，也不保证 factual accuracy。Multi-model agreement 不应被当作事实核查。
+汇总步骤通过提示词（prompt）约束为中立表达，但这不是形式化的无偏保证，也不保证事实准确。多模型一致意见不应被当作事实核查。
 
-### Secret-safe GitHub release
+### 安全公开发布
 
-Pantheon 的设计要求 tokens、API keys、bot credentials 和环境相关配置不进入 source control。公开文档只描述 setup boundary，不暴露 secret 或 private Telegram group details。
+Pantheon 的设计要求 token、API Key、bot 凭据和环境相关配置不进入源码仓库。公开文档只描述配置边界，不暴露 secret 或私人 Telegram 群信息。
 
-## Demo
+## 当前限制
 
-后续可以加入脱敏后的 Telegram 截图或 GIF。当前不伪造图片，不添加不存在的 asset，不包含 token、group identifier 或 private conversation content。
+- 中立汇总依赖提示词约束，不能保证绝对客观。
+- 多模型讨论可以提供不同视角，但不能替代事实核查。
+- API 调用会产生真实费用，因此讨论轮次、模型选择和输出长度都需要控制。
+- 公开展示材料需要脱敏，不能包含 token、群聊标识或私人对话内容。
+
+## 演示
+
+后续可以加入脱敏后的 Telegram 截图或 GIF。当前不伪造图片，不添加不存在的资源，不包含 token、群聊标识或私人对话内容。
 
 ## 源码仓库
 

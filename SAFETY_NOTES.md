@@ -1,69 +1,69 @@
-# Safety Notes
+# 安全与可靠性说明
 
-这篇文档记录个人 LLM Agent deployment 的 safety 和 reliability 考量。它不是正式安全审计，也不是 production safety case。
+这篇文档记录个人 LLM Agent 部署的安全与可靠性考量。它不是正式安全审计，也不是生产环境安全证明。
 
-## Safety Posture
+## 安全原则
 
-Agentic systems 应该围绕 user control 设计。一个 workflow 越可能影响文件、账号、外部服务或他人，就越需要 review 和 confirmation。
+Agent 系统应该围绕用户控制来设计。一个工作流程越可能影响文件、账号、外部服务或他人，就越需要复核和确认。
 
-## Human-in-the-Loop Controls
+## 人工确认机制
 
-以下情况应使用 human oversight：
+以下情况应使用人工确认或人工复核：
 
 - 修改或删除文件。
 - 外部通信或账号操作。
-- 长时间运行或 recurring tasks。
-- 访问敏感目录或 credentials 的 tool calls。
-- 模型表达低 confidence 的 workflow。
+- 长时间运行或定时任务。
+- 访问敏感目录或 credentials 的工具调用。
+- 模型表达低信心的工作流程。
 
 有用的控制模式：
 
-- 执行前 preview。
+- 执行前预览。
 - 尽可能提供 dry-run mode。
-- 对不可逆步骤要求 explicit approval。
+- 对不可逆步骤要求明确批准。
 - 清楚总结将要改变什么。
-- 使用 logs 帮助用户还原关键动作。
+- 使用日志帮助用户还原关键动作。
 
-## Permission Boundaries
+## 权限边界
 
-系统应该区分 reading、writing、executing 和 network access。把所有 tools 当成同一类权限，会让 agent 行为更难检查，也更难信任。
+系统应该区分读取、写入、执行和网络访问。把所有工具当成同一类权限，会让 Agent 行为更难检查，也更难信任。
 
 推荐边界：
 
 - 探索阶段只读访问。
 - 对文档或已批准编辑提供窄范围写权限。
-- 对会改变状态的 command execution 单独审批。
-- 对包含 private context 的 network calls 单独审批。
+- 对会改变状态的命令执行单独审批。
+- 对包含私人上下文的网络调用单独审批。
 - Credentials 不进入 prompts、logs 或 repository files。
 
-## Reliability Controls
+## 可靠性控制
 
-Reliability controls 应该让 failure 更容易被发现和恢复：
+可靠性控制应该让失败更容易被发现和恢复：
 
-- 明确 task scope。
+- 明确任务范围。
 - 对多步骤修改使用 checklist。
-- 依赖 generated structured data 前先验证。
-- 对 parsing、formatting 和 file operations 优先使用 deterministic tools。
-- 当事实无法验证时记录 assumptions。
-- 当 model、tool 或 network calls 失败时使用 fallbacks。
+- 依赖生成的结构化数据前先验证。
+- 对解析、格式化和文件操作优先使用确定性工具。
+- 当事实无法验证时记录假设。
+- 当模型、工具或网络调用失败时使用备用方案。
 
-## Failure Modes
+## 可能的失败方式
 
-重要 failure modes 包括：
+重要的失败方式包括：
 
 - 模型输出过度自信。
-- 意外披露 private context。
-- Tool execution 超出预期范围。
-- Retry loops 增加成本但不提升质量。
-- Silent partial completion。
+- 意外披露私人上下文。
+- 工具执行超出预期范围。
+- 重试循环增加成本但不提升质量。
+- 部分完成却没有明显提示。
 - 文档暗示项目成熟度高于实际情况。
 
-## Conservative Defaults
+## 保守默认策略
 
-对个人 deployment 来说，保守默认值是优点：
+对个人部署来说，保守默认值是优点：
 
 - 风险不清楚时先询问。
-- 偏向更小 scope。
+- 偏向更小任务范围。
 - 偏向可逆操作。
-- 对敏感上下文优先 local processing。
+- 对敏感上下文优先本地处理。
 - 偏向诚实的不确定性，而不是漂亮但无依据的猜测。
